@@ -39,15 +39,21 @@ if (isset($_POST["submit"])){
     $gender = validateGender($_POST["gender"]);
 
     if (isset($firstName, $lastName, $password, $email, $number, $gender)) {
-        $insert_query = "INSERT INTO users VALUES (NULL,'$firstName','$lastName','$password','$email','$number','$gender');";
-        if(mysqli_query($connection, $insert_query)) 
-            header("location:login.php");
-        else 
-            echo "Error: " . mysqli_error($connection);
+        $email_check_query = "SELECT email FROM users WHERE email = '$email'";
+        $is_exist = $connection->query($email_check_query);
+        if ($is_exist->num_rows > 0) {
+            echo "<script>alert('Error: Email already in use.');</script>";
+        }
+        else{
+            $insert_query = "INSERT INTO users VALUES (NULL,'$firstName','$lastName','$password','$email','$number','$gender');";
+            if(mysqli_query($connection, $insert_query)) 
+                header("location:login.php");
+            else 
+                echo "Error: " . mysqli_error($connection);
+        }
     }
-    else{
+    else
         echo "Error: Not all form fields are set.";  
-    }
 } 
 mysqli_close($connection);
 ?>
