@@ -1,33 +1,42 @@
 <?php
 session_start();
-if (!$_SESSION['logged_in'])  header("location:login.php?err=Please Login First!");
-else echo "Hello ".$_SESSION['username'];
+if (!$_SESSION['logged_in']){
+    header("location:login.php?err=Please Login First!");
+    exit;    
+} 
 ?>
 
 <?php
 require 'connection.php';
 
-if (isset($_GET["ids"]) && $_GET["ids"] != NULL){
-    $ids = $_GET["ids"];
-    $display_query = "SELECT * FROM products WHERE id IN ($ids)";
+if (isset($_COOKIE["product_id"])) {
+    $product_ids = $_COOKIE["product_id"];
+    $display_query = "SELECT * FROM products WHERE id IN ($product_ids)";
     $data = $connection->query($display_query);
 }
+
 if (isset($_POST['remove_id'])) {
     $remove_id = $_POST['remove_id'];
-    echo gettype($remove_id);
-    $array = explode(",", $ids);
-    $array = array_filter($array, function($value) use ($remove_id) {
+    $product_ids_array = explode(",", $_COOKIE['product_id']);
+    $updated_ids_array = array_filter($product_ids_array, function($value) use ($remove_id) {
         return $value != $remove_id;
     });
-    $ids = implode(",", $array);
-    if ($ids === ""){
-        $ids = NULL;
-        header("location:cart.php");
+    $updated_ids = implode(",", $updated_ids_array);
+    
+    if (empty($updated_ids)) {
+        setcookie("product_id", "NULL", time() - 3600, "/");
+        header("location: cart.php");
     }
-    else
-        header("location:cart.php?ids=$ids");
+    else{
+        setcookie("product_id", $updated_ids, time() + (86400), "/");
+        header("location: cart.php");
+    }
+
+    // Ensure the script halts after a header redirect
+    exit();
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -182,14 +191,14 @@ if (isset($_POST['remove_id'])) {
             <button onclick="window.location.href='logout.php'">Log out</button>
         </div>
     </header>
-    <?php if (isset($_GET["ids"])) :?>
+    <?php if (isset($_COOKIE["product_id"])) :?>
         <h1 class="AP">Your Products</h1>
     <?php else :?>
         <h1 class="AP">No Products In Your Cart</h1>
     <?php endif; ?>
     <main class="cart-container">
         <?php  
-        if (isset($_GET["ids"]) && $_GET["ids"] != NULL) {
+        if (isset($_COOKIE["product_id"])) {
             if ($data->num_rows > 0) {
                 while ($row = $data->fetch_assoc()) {
                     echo '

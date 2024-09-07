@@ -1,7 +1,21 @@
 <?php
 session_start();
-if (!$_SESSION['logged_in'])  header("location:login.php?err=Please Login First!");
-else echo "Hello ".$_SESSION['username'];
+if (!$_SESSION['logged_in']){
+    header("location:login.php?err=Please Login First!");
+    exit;    
+} 
+if(isset($_POST["add_to_cart"])){
+    $current_cart = isset($_COOKIE["product_id"]) ? $_COOKIE["product_id"] : "";
+    $new_product_id = $_POST["product_id"];
+    $product_ids = !empty($current_cart) ? explode(",", $current_cart) : [];
+
+    if (!in_array($new_product_id, $product_ids))
+        $product_ids[] = $new_product_id;
+    
+    $updated_cart = implode(",", $product_ids);
+    setcookie("product_id", $updated_cart, time() + (86400 * 30), "/");
+    $_COOKIE["product_id"] = $updated_cart;
+}
 ?>
 
 <?php
@@ -162,7 +176,7 @@ $data = $connection->query($display_query);
     <header>
         <h1 class="title">Tahoun Market</h1>
         <div class="header-buttons">            
-            <button onclick="goToCart();">Cart</button>
+            <button onclick="window.location.href='cart.php'">Cart</button>
             <button onclick="window.location.href='addproduct.php'">Add Product</button>
             <button onclick="window.location.href='logout.php'">Log out</button>
         </div>
@@ -180,7 +194,10 @@ $data = $connection->query($display_query);
                             <h2 class="card-name">'. $row["name"] .'</h2>
                             <p class="card-price">$'. $row["price"] .'</p>
                             <div class="card-buttons">
-                                <button class="edit-btn" onclick="addtocart('. $row["id"] .')">Add to cart</button>
+                            <form method="post">
+                                <input type="hidden" name="product_id" value="'. $row["id"].'" >
+                                <button class="edit-btn" type="submit" name="add_to_cart">Add to cart</button>
+                            </form>
                             </div>
                         </div>
                     </div>';
@@ -188,7 +205,7 @@ $data = $connection->query($display_query);
             }
         ?>
     </main>
-    <script>
+    <!-- <script>
         let cart = [];
         function addtocart(productId) {
             if (!cart.includes(productId)) {
@@ -202,7 +219,7 @@ $data = $connection->query($display_query);
             let cartString = cart.join(',');
             window.location.href = 'cart.php?ids=' + cartString;
         }
-    </script>
+    </script> -->
     <footer>
         <p>Beta version</p>
     </footer>

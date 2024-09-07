@@ -1,7 +1,9 @@
 <?php
 session_start();
-if (!$_SESSION['logged_in'])  header("location:login.php?err=Please Login First!");
-else echo "Hello ".$_SESSION['username'];
+if (!$_SESSION['logged_in']){
+    header("location:login.php?err=Please Login First!");
+    exit;    
+} 
 ?>
 
 <?php
