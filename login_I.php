@@ -90,7 +90,7 @@
         ?> 
         <p>
             Don't hava an account? 
-            <a href="/server/signup.php">Register</a>
+            <a href="signup.php">Register</a>
         </p>
         </form>
     </div>
