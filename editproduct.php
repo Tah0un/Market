@@ -1,4 +1,10 @@
 <?php
+session_start();
+if (!$_SESSION['logged_in'])  header("location:login.php?err=Please Login First!");
+else echo "Hello ".$_SESSION['username'];
+?>
+
+<?php
 require "connection.php";
 require "client_sanitize.php";
 

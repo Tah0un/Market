@@ -1,10 +1,14 @@
+<?php
+session_start();
+if (!$_SESSION['logged_in'])  header("location:login.php?err=Please Login First!");
+else echo "Hello ".$_SESSION['username'];
+?>
 
 <?php
 require 'connection.php';
 
 $display_query = "SELECT * FROM products";
 $data = $connection->query($display_query);
-
 ?>
 
 <!DOCTYPE html>
